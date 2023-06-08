@@ -2,20 +2,7 @@
 pub struct Polynomial{
     coeffs: Vec<u8>
 }
-
-
-
-impl Polynomial {
-
-    pub fn evaluate(&self, x: u8) -> u8 {
-        let mut result = 0;
-        for &coeff in self.coeffs.iter().rev() {
-            result = result * x + coeff;
-        }
-        result
-    }
-
-    fn iter(&self) -> std::slice::Iter<u8> {
+fn iter(&self) -> std::slice::Iter<u8> {
         self.coeffs.iter()
     }
 }
