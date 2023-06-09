@@ -23,23 +23,32 @@ impl Polynomial {
         self.coeffs.into_iter()
     }
 
-    //fn modulo(self, dividend: Polynomial) -> Polynomial {
+    fn modulo(self, dividend: Polynomial) -> Polynomial {
         
-    //}
+    }
 }
 
 //first I need to pad out the polynomial
-//I will pad out the polynomial and I will use the index of the element in the vector as the degree of the polynomial. 
+//I will pad out the polynomial and I will use the index of the element in the vector as the degree of the polynomial.
+// when you multiply two terms, you take their index and 
 
 impl std::ops::Mul for Polynomial {
     type Output = Polynomial;
     fn mul(self, poly2: Polynomial) -> Polynomial {
         
-        //let mut needs_simplification = self.iter().map(|poly1_term: &u8| {
-            //poly2.iter().map(|poly2_term: &u8| {
-                //poly1_term * poly2_term
-            //})
-        //}).collect();
+        let mut unpadded_poly = self.iter().enumerate().filter(|(_pd, term)| **term == 1).flat_map(|(predegree1, _poly1_term)| {
+            poly2.iter().enumerate().filter(|(pd, term)| **term == 1).map(move|(predegree2, _poly2_term)| -> u8 {
+                let degree1:usize = 8 - predegree1;
+                let degree2:usize = 8 - predegree2;
+                
+                (degree1 + degree2) as u8
+                
+            })
+        }).collect::<Vec<u8>>();
+
+        //before I clean up and implement addition between the remaining terms I need to decide on how I want to do modulo, as I'm not sure if I will need to pad
+        //out the resulting polynomial. 
+
         Polynomial {coeffs: vec![1]}
 
     }
