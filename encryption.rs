@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::io::{self, BufRead};
-use crate::polynomials::{polynomial_conversion, Polynomial};
+use crate::polynomials::{polynomial_conversion, Polynomial, NumType::Coefficient, NumType::Degree};
 
 
 
 pub fn accept_user_input() -> String {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines().fuse();
-    let mut ext_input = String::new();
+    let mut _ext_input = String::new();
 
     loop {
         let input = match lines.next() {
@@ -16,11 +16,11 @@ pub fn accept_user_input() -> String {
         };
 
         if input.trim().is_empty() {
-            ext_input = input;
+            _ext_input = input;
             break;
         }
     }
-    ext_input
+    _ext_input
 }
 
 //the key is 237282396920938463463374607431768715456.
@@ -161,8 +161,7 @@ pub fn row_shifting(mut state: Vec<u8>) -> Vec<u8> {
 
 pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
     let mut state_1 = state.chunks(4).map(|v| {
-        return v.to_vec();
-        
+        v.to_vec()  
     });
 
     let vec1 = state_1.next().unwrap();
@@ -183,27 +182,43 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
     println!("{:?}", columns_as_polynomials);
 
 
-    let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![vec![Polynomial {coeffs: vec![1,1]}, Polynomial {coeffs: vec![1,1,1]}, Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1]}], 
-    vec![Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1,1]}, Polynomial {coeffs: vec![1,1,1]}, Polynomial {coeffs: vec![1]}], 
-    vec![Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1,1]}, Polynomial {coeffs: vec![1,1,1]}], 
-    vec![Polynomial {coeffs: vec![1,1,1]}, Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1]}, Polynomial {coeffs: vec![1,1]}]];
+    let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![
+    vec![
+        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]}], 
+    vec![
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}, 
+        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]}],
+    vec![
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}], 
+    vec![
+        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
+        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}]];
 
-    let irr_poly = Polynomial {coeffs: vec![1,1,1,1,1,1,1,1]};
+    let irr_poly = Polynomial {poly: vec![(Degree(8), Coefficient(1)),(Degree(4), Coefficient(1)),(Degree(3), Coefficient(1)),(Degree(1), Coefficient(1)),(Degree(0), Coefficient(1))]};
 
-    columns_as_polynomials.into_iter().map(|column1| {
-        matrix_for_mixing.into_iter().map(|mx_row|
-            mx_row.into_iter().zip(column1.into_iter()).map(|(a, b)| {
-                let premod = a * b;
-                let out = 
+    //columns_as_polynomials.into_iter().map(|column1| {
+        //matrix_for_mixing.into_iter().map(|mx_row|
+            //mx_row.into_iter().zip(column1.into_iter()).map(|(a, b)| {
+                //let premod = a * b;
+                //let out = 
 
-            }
-        )
-        )
-    });
+            //}
+        //)
+        //)
+    //});
+
+    
 
     let temp_return: Vec<u8> = vec![0];
     temp_return
 }
-
-//so how can I work with polynomials in rust without using an external crate
-//
