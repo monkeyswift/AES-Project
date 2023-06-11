@@ -1,69 +1,77 @@
-use crate::polynomials::NumType::{Degree, Coefficient};
-
 #[derive(Clone, Debug)]
+
+//Each element of the vector represents the degree of the x. I realized that I don't need to store coefficient values because coefficients are only ever 1 or 0, so if the 
+//degree exists at all it implies that the coefficient is 1. 
 pub struct Polynomial {
-    pub poly: Vec<(NumType, NumType)>
+    pub poly: Vec<u8>
 }
-#[derive(Clone, Debug, PartialEq)]
-pub enum NumType {
-    Degree (u8),
-    Coefficient (u8),
-}
-
 //remember that addition is just Xor cause of the finite field.
-
 impl Polynomial {
 
-    fn iter(&self) -> std::slice::Iter<(NumType, NumType)> {
+    fn iter(&self) -> std::slice::Iter<u8> {
         self.poly.iter()
     }
 
-    fn into_iter(self) -> std::vec::IntoIter<(NumType, NumType)> {
+    fn into_iter(self) -> std::vec::IntoIter<u8> {
         self.poly.into_iter()
     }
 
-    fn modulo(self, divisor: Polynomial) -> Polynomial {
-        let res = self.poly[0] / divisor.poly[0];
-        let new_divisor: Vec<u8> = divisor.iter().map(|term| &res * term).collect();
-        let new_dividend = self.iter().zip(new_divisor.iter()).map(|(s_term, dterm)| );
+    pub fn aes_modulo(mut self, mut divisor: Polynomial) -> Polynomial {
+        let res = self.poly[0] / divisor.poly[0]; // storing the quotient of dividing the first terms of both polynomials as res
+        let subtrahend: Vec<u8> = divisor.iter().map(|term| &res * term).collect(); // creating the polynomial that needs to be subtracted from self. 
 
-        let temp_return = Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]};
-        temp_return
+        Polynomial {poly: vec![1]}
+    }
+
+}
+// writing it out just helps me. So I currently have a problem where I need to include terms from the subtrahend if they aren't matched by anything. my logic so 
+
+impl std::ops::Sub for Polynomial {
+    type Output = Polynomial;
+    fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
+
+        let mut temp_self = self.poly.clone();
+
+        subtrahend.iter().enumerate().for_each(|(index1, sub_term)| {
+            self = Polynomial{poly: temp_self.clone()};
+            temp_self.clear();
+            self.clone().iter().enumerate().for_each(|(index2, self_term)|{
+            if *sub_term != *self_term {
+
+                if index2 == self.poly.len() - 1 {
+                    temp_self.push(*sub_term)
+            }
+                temp_self.push(*self_term);
+            }
+            if index1 == subtrahend.poly.len() - 1 {
+                self = Polynomial {poly: temp_self.clone()};
+            } 
+            })
+        });
+        self
     }
 }
-
-//first I need to pad out the polynomial
-//I will pad out the polynomial and I will use the index of the element in the vector as the degree of the polynomial.
-// when you multiply two terms, you take their index and 
 
 impl std::ops::Mul for Polynomial {
     type Output = Polynomial;
     fn mul(self, poly2: Polynomial) -> Polynomial {
         
-        let mut unpadded_poly = self.iter().filter(|(_pd, term)| *term == Coefficient(1)).flat_map(|(predegree1, _poly1_term)| {
-            poly2.iter().filter(|(pd, term)| *term == Coefficient(1)).map(move|(predegree2, _poly2_term)| -> () {
+        let mut poly = 
+        self.iter().flat_map(|degree1| {
+            poly2.iter().map(move|degree2| -> u8 {
                 
-                
-                
-                
-                
+                *degree1 + *degree2
+
             })
-        }).collect::<Vec<((NumType, NumType))>>();
+        }).collect::<Vec<u8>>();
 
         //before I clean up and implement addition between the remaining terms I need to decide on how I want to do modulo, as I'm not sure if I will need to pad
         //out the resulting polynomial. 
 
-        Polynomial {poly: vec![(Degree(0), Coefficient(0))]}
+        Polynomial {poly: vec![0]}
 
     }
 }
-
-//impl std::ops::Add for Polynomial {
-    //type Output = Polynomial;
-    //fn add(self, poly2: Polynomial) -> Polynomial {
-        
-    //}
-//}
 
 pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
 
@@ -71,9 +79,9 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
         column.into_iter().map(|byte| -> Polynomial {
             let mut temp_vec = Vec::new();
             for n in (0..8).rev() {
-                let bit = ((byte >> n) & 1);
+                let bit = (byte >> n) & 1;
                 if bit == 1 {
-                    temp_vec.push((Degree(n), Coefficient(bit)))
+                    temp_vec.push(n)
                 }
             }
             Polynomial {poly: (temp_vec)}
@@ -81,13 +89,3 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
     }).collect()
 
 }
-
-
-//Everything below this point is in the scrapyard
-//pub fn evaluate(&self, x: u8) -> u8 {
-    //let mut result = 0;
-    //for &coeff in self.poly.iter().rev() {
-        //result = result * x + coeff;
-    //}
-    //result
-//}
