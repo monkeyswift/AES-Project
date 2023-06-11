@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::io::{self, BufRead};
-use crate::polynomials::{polynomial_conversion, Polynomial, NumType::Coefficient, NumType::Degree};
+use crate::polynomials::{polynomial_conversion, Polynomial};
 
 
 
@@ -175,36 +175,33 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
             return vec![v1, v2, v3, v4];
         }).collect();
 
-    println!("{:?}", columns);
-
     let mut columns_as_polynomials: Vec<Vec<Polynomial>> = polynomial_conversion(columns);
-
-    println!("{:?}", columns_as_polynomials);
-
 
     let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![
     vec![
-        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]}], 
+        Polynomial {poly: vec![1, 0]},
+        Polynomial {poly: vec![2, 1, 0]},
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![0]}], 
     vec![
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}, 
-        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]}],
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![1, 0]}, 
+        Polynomial {poly: vec![2, 1, 0]},
+        Polynomial {poly: vec![0]}],
     vec![
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}], 
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![1, 0]},
+        Polynomial {poly: vec![2, 1, 0]}], 
     vec![
-        Polynomial {poly: vec![(Degree(2), Coefficient(1)),(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(0), Coefficient(1))]},
-        Polynomial {poly: vec![(Degree(1), Coefficient(1)), (Degree(0), Coefficient(1))]}]];
+        Polynomial {poly: vec![2, 1, 0]},
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![0]},
+        Polynomial {poly: vec![1, 0]}]];
 
-    let irr_poly = Polynomial {poly: vec![(Degree(8), Coefficient(1)),(Degree(4), Coefficient(1)),(Degree(3), Coefficient(1)),(Degree(1), Coefficient(1)),(Degree(0), Coefficient(1))]};
+    let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]}; //might move this into the AES_modulo function.
+
+    println!("{:?}",Polynomial {poly: vec![6,4,3,2]} - Polynomial {poly: vec![5,4,3,1]});
 
     //columns_as_polynomials.into_iter().map(|column1| {
         //matrix_for_mixing.into_iter().map(|mx_row|
@@ -216,9 +213,6 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
         //)
         //)
     //});
-
-    
-
     let temp_return: Vec<u8> = vec![0];
     temp_return
 }
