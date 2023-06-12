@@ -201,7 +201,7 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
 
     let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]}; //might move this into the AES_modulo function.
 
-    println!("{:?}",Polynomial {poly: vec![6,4,3,2]} - Polynomial {poly: vec![5,4,3,1]});
+    println!("{:?}",Polynomial {poly: vec![7,5,3,2]} - Polynomial {poly: vec![3,2,1,0]});
 
     //columns_as_polynomials.into_iter().map(|column1| {
         //matrix_for_mixing.into_iter().map(|mx_row|
