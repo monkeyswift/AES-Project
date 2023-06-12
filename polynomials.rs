@@ -24,7 +24,8 @@ impl Polynomial {
     }
 
 }
-// writing it out just helps me. So I currently have a problem where I need to include terms from the subtrahend if they aren't matched by anything. my logic so 
+// writing it out just helps me. So I currently have a problem where I need to include terms from the subtrahend if they aren't matched by anything.
+// if, after iterating througout all of self and comparing each element to the subtrahend term everything is included, the subtrahend term should be added.  
 
 impl std::ops::Sub for Polynomial {
     type Output = Polynomial;
@@ -32,22 +33,43 @@ impl std::ops::Sub for Polynomial {
 
         let mut temp_self = self.poly.clone();
 
+        let mut subtrahend_remains = vec![];
+
+        let mut counter = 0;
+
+        //let mut push_count = 0;
+
+        //let mut self_count = self.len();
+
         subtrahend.iter().enumerate().for_each(|(index1, sub_term)| {
-            self = Polynomial{poly: temp_self.clone()};
+            println!("sub_term {} is in use", index1 + 1);
+            println!("you are on round {} \n", index1 + 1);
             temp_self.clear();
             self.clone().iter().enumerate().for_each(|(index2, self_term)|{
+                
             if *sub_term != *self_term {
-
-                if index2 == self.poly.len() - 1 {
-                    temp_self.push(*sub_term)
-            }
                 temp_self.push(*self_term);
+                counter += 1;
+            } else {
+                println!("excluded term {} from new self", index2 + 1);
             }
-            if index1 == subtrahend.poly.len() - 1 {
-                self = Polynomial {poly: temp_self.clone()};
-            } 
+            println!("index of self: {}, length of self {} \n", index2, self.poly.len() - 1);
+            if index2 == self.poly.len() - 1 {
+                println!("end of iterator has been reached");
+                if index2 + 1 == counter {
+                    println!("added term to subtrahend");
+                    subtrahend_remains.push(*sub_term)
+                }
+                counter = 0;
+                
+                println!("updated self from inner loop");
+                self = Polynomial {poly: temp_self.clone()}; 
+                
+            }
+            
             })
         });
+        println!("{:?}", subtrahend_remains);
         self
     }
 }
@@ -89,3 +111,45 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
     }).collect()
 
 }
+
+
+//Everything below this point is in the scrapyard
+//pub fn evaluate(&self, x: u8) -> u8 {
+    //let mut result = 0;
+    //for &coeff in self.poly.iter().rev() {
+        //result = result * x + coeff;
+    //}
+    //result
+//}
+//while self.poly[0] >= divisor.poly[0] {
+    //let mut new_self = Vec::new();
+    //for (index ,dividend_term_degree) in self.iter().enumerate() {
+        //for subtractor_term_degree in subtractor.iter() {
+            //if *dividend_term_degree != *subtractor_term_degree {
+                //new_dividend.push(*dividend_term_degree);
+                //let mut temp_self = self.poly.clone();
+                //temp_self.remove(index);
+                //if subtractor.iter().len() == *subtractor_term_degree as usize{
+                    //new_self.extend(temp_self);
+                //}
+            //}
+        //}
+    //}
+    //self.poly = new_self;
+//}
+
+
+
+//let mut new_self = Vec::new();
+            //for (index ,dividend_term_degree) in self.iter().enumerate() {
+                //for subtractor_term_degree in subtractor.iter() {
+                    //if *dividend_term_degree != *subtractor_term_degree {
+                        //new_dividend.push(*dividend_term_degree);//
+                        //let mut temp_self = self.poly.clone();
+                        //temp_self.remove(index);
+                        //if subtractor.iter().len() == *subtractor_term_degree as usize{
+                            //new_self.extend(temp_self);
+                        //}
+                    //}
+                //}
+            //}
