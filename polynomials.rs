@@ -1,7 +1,4 @@
 #[derive(Clone, Debug)]
-
-//Each element of the vector represents the degree of the x. I realized that I don't need to store coefficient values because coefficients are only ever 1 or 0, so if the 
-//degree exists at all it implies that the coefficient is 1. 
 pub struct Polynomial {
     pub poly: Vec<u8>
 }
@@ -29,49 +26,50 @@ impl Polynomial {
 
 impl std::ops::Sub for Polynomial {
     type Output = Polynomial;
-    fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
+fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
 
-        let mut temp_self = self.poly.clone();
-
-        let mut subtrahend_remains = vec![];
-
-        let mut counter = 0;
-
-        //let mut push_count = 0;
-
-        //let mut self_count = self.len();
-
+    let mut temp_self = self.poly.clone();
+        
+    let mut subtrahend_remains = vec![];
+        
+    let mut counter = 0;
+        
         subtrahend.iter().enumerate().for_each(|(index1, sub_term)| {
-            println!("sub_term {} is in use", index1 + 1);
-            println!("you are on round {} \n", index1 + 1);
-            temp_self.clear();
-            self.clone().iter().enumerate().for_each(|(index2, self_term)|{
-                
-            if *sub_term != *self_term {
-                temp_self.push(*self_term);
-                counter += 1;
-            } else {
-                println!("excluded term {} from new self", index2 + 1);
-            }
-            println!("index of self: {}, length of self {} \n", index2, self.poly.len() - 1);
-            if index2 == self.poly.len() - 1 {
-                println!("end of iterator has been reached");
-                if index2 + 1 == counter {
-                    println!("added term to subtrahend");
-                    subtrahend_remains.push(*sub_term)
+                println!("sub_term {} is in use", index1 + 1);
+                println!("you are on round {} \n", index1 + 1);
+                temp_self.clear();
+                self.clone().iter().enumerate().for_each(|(index2, self_term)|{
+                        
+                if *sub_term != *self_term {
+                    temp_self.push(*self_term);
+                    counter += 1;
+                } else {
+                    println!("excluded term {} from new self", index2 + 1);
                 }
-                counter = 0;
-                
-                println!("updated self from inner loop");
-                self = Polynomial {poly: temp_self.clone()}; 
-                
+                println!("index of self: {}, length of self {} \n", index2, self.poly.len() - 1);
+                });
+                println!("end of iterator has been reached");
+                    if self.poly.len() == counter {
+                        println!("added term to subtrahend");
+                        subtrahend_remains.push(*sub_term)
+                    }
+                    counter = 0;
+                    
+                    println!("updated self from inner loop");
+                    self = Polynomial {poly: temp_self.clone()};
+            });
+            println!("{:?}", subtrahend_remains);
+            subtrahend_remains.iter().for_each(|remains_term| {
+            for (index2, self_term) in temp_self.iter().enumerate().rev() {
+                if *remains_term < *self_term {
+                    self.poly.insert(index2 + 1 + counter, *remains_term);
+                    counter += 1;
+                    break;
+                }
             }
-            
-            })
-        });
-        println!("{:?}", subtrahend_remains);
-        self
-    }
+            });
+            self
+        }
 }
 
 impl std::ops::Mul for Polynomial {
@@ -114,42 +112,3 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
 
 
 //Everything below this point is in the scrapyard
-//pub fn evaluate(&self, x: u8) -> u8 {
-    //let mut result = 0;
-    //for &coeff in self.poly.iter().rev() {
-        //result = result * x + coeff;
-    //}
-    //result
-//}
-//while self.poly[0] >= divisor.poly[0] {
-    //let mut new_self = Vec::new();
-    //for (index ,dividend_term_degree) in self.iter().enumerate() {
-        //for subtractor_term_degree in subtractor.iter() {
-            //if *dividend_term_degree != *subtractor_term_degree {
-                //new_dividend.push(*dividend_term_degree);
-                //let mut temp_self = self.poly.clone();
-                //temp_self.remove(index);
-                //if subtractor.iter().len() == *subtractor_term_degree as usize{
-                    //new_self.extend(temp_self);
-                //}
-            //}
-        //}
-    //}
-    //self.poly = new_self;
-//}
-
-
-
-//let mut new_self = Vec::new();
-            //for (index ,dividend_term_degree) in self.iter().enumerate() {
-                //for subtractor_term_degree in subtractor.iter() {
-                    //if *dividend_term_degree != *subtractor_term_degree {
-                        //new_dividend.push(*dividend_term_degree);//
-                        //let mut temp_self = self.poly.clone();
-                        //temp_self.remove(index);
-                        //if subtractor.iter().len() == *subtractor_term_degree as usize{
-                            //new_self.extend(temp_self);
-                        //}
-                    //}
-                //}
-            //}
