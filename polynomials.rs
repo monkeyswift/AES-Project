@@ -9,15 +9,20 @@ impl Polynomial {
         self.poly.iter()
     }
 
-    fn into_iter(self) -> std::vec::IntoIter<u8> {
-        self.poly.into_iter()
-    }
+    pub fn aes_modulo(mut self) -> Polynomial {
 
-    pub fn aes_modulo(mut self, mut divisor: Polynomial) -> Polynomial {
-        let res = self.poly[0] / divisor.poly[0]; // storing the quotient of dividing the first terms of both polynomials as res
-        let subtrahend: Vec<u8> = divisor.iter().map(|term| &res * term).collect(); // creating the polynomial that needs to be subtracted from self. 
+        let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]};
 
-        Polynomial {poly: vec![1]}
+        while self.poly[0] >= 8 {
+            println!("round executed\n");
+            let div_of_first_terms = self.poly[0] - irr_poly.poly[0]; // storing the quotient of dividing the first terms of both polynomials as res
+            println!("the quotient of dividing the first two terms is: {}", div_of_first_terms);
+            let subtrahend: Polynomial = Polynomial {poly: irr_poly.iter().map(|term| div_of_first_terms + *term).collect()}; // creating the polynomial that needs to be subtracted from self.
+            println!("self before subtraction: {:?}, subtrahend before subtraction: {:?}", self, subtrahend);
+            self = self - subtrahend;
+            println!("self after subtraction: {:?}", self);
+        }
+        self
     }
 
 }
@@ -35,8 +40,6 @@ fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
     let mut counter = 0;
         
         subtrahend.iter().enumerate().for_each(|(index1, sub_term)| {
-                println!("sub_term {} is in use", index1 + 1);
-                println!("you are on round {} \n", index1 + 1);
                 temp_self.clear();
                 self.clone().iter().enumerate().for_each(|(index2, self_term)|{
                         
@@ -44,21 +47,17 @@ fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
                     temp_self.push(*self_term);
                     counter += 1;
                 } else {
-                    println!("excluded term {} from new self", index2 + 1);
                 }
-                println!("index of self: {}, length of self {} \n", index2, self.poly.len() - 1);
                 });
-                println!("end of iterator has been reached");
                     if self.poly.len() == counter {
-                        println!("added term to subtrahend");
+
                         subtrahend_remains.push(*sub_term)
                     }
                     counter = 0;
                     
-                    println!("updated self from inner loop");
                     self = Polynomial {poly: temp_self.clone()};
             });
-            println!("{:?}", subtrahend_remains);
+            
             subtrahend_remains.iter().for_each(|remains_term| {
             for (index2, self_term) in temp_self.iter().enumerate().rev() {
                 if *remains_term < *self_term {
@@ -74,24 +73,54 @@ fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
 
 impl std::ops::Mul for Polynomial {
     type Output = Polynomial;
-    fn mul(self, poly2: Polynomial) -> Polynomial {
+    fn mul(mut self, poly2: Polynomial) -> Polynomial {
         
-        let mut poly = 
+        let poly = 
         self.iter().flat_map(|degree1| {
             poly2.iter().map(move|degree2| -> u8 {
                 
                 *degree1 + *degree2
 
             })
-        }).collect::<Vec<u8>>();
+        }).collect::<Vec<u8>>(); // from here on out I need to remove like terms if they appear more than twice. After that I also need to fix the order.
+    println!("{:?}", poly);
+     let mut simplified_poly = vec![255];
 
-        //before I clean up and implement addition between the remaining terms I need to decide on how I want to do modulo, as I'm not sure if I will need to pad
-        //out the resulting polynomial. 
+     let mut gremlin = vec![];
 
-        Polynomial {poly: vec![0]}
+        for term1 in poly.iter() {
 
+            let mut count = 1;
+
+            for term2 in poly.iter() {
+                if term1 == term2 {
+                    count += 1
+                }
+            }
+            if count % 2 == 0 {
+                if simplified_poly[simplified_poly.len() - 1] > *term1 {
+                    simplified_poly.push(*term1)
+                } else {
+                    gremlin.push(*term1)
+                }
+            }   
+        }
+        let mut counter = 0;
+        self.poly.clear();
+        gremlin.iter().for_each(|gremlin_term| {
+            for (index2, self_term) in simplified_poly.iter().enumerate().rev() {
+                if *gremlin_term < *self_term {
+                    self.poly.insert(index2 + 1 + counter, *gremlin_term);
+                    counter += 1;
+                    break;
+                }
+            }
+            });
+
+        Polynomial {poly: simplified_poly}
     }
 }
+
 
 pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
 
@@ -109,6 +138,3 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
     }).collect()
 
 }
-
-
-//Everything below this point is in the scrapyard
