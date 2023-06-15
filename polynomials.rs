@@ -75,49 +75,63 @@ impl std::ops::Mul for Polynomial {
     type Output = Polynomial;
     fn mul(mut self, poly2: Polynomial) -> Polynomial {
         
-        let poly = 
+        let mut poly = 
         self.iter().flat_map(|degree1| {
             poly2.iter().map(move|degree2| -> u8 {
                 
-                *degree1 + *degree2
+                *degree1  + *degree2
 
             })
         }).collect::<Vec<u8>>(); // from here on out I need to remove like terms if they appear more than twice. After that I also need to fix the order.
-    println!("{:?}", poly);
-     let mut simplified_poly = vec![255];
+    
+    let mut simplified_poly = vec![255];
 
-     let mut gremlin = vec![];
+    let mut gremlin = vec![];
+
+    self.poly.clear();
+    
+    poly.sort();
+    poly = poly.into_iter().rev().collect();
+    println!("poly: {:?}", poly);
+
+    let mut counter = 0;
+    let mut temp_term: u8 = 0;
 
         for term1 in poly.iter() {
-
-            let mut count = 1;
+            let mut count = 0;
 
             for term2 in poly.iter() {
+            
                 if term1 == term2 {
-                    count += 1
+                    count += 1;
                 }
             }
+            
             if count % 2 == 0 {
-                if simplified_poly[simplified_poly.len() - 1] > *term1 {
-                    simplified_poly.push(*term1)
-                } else {
-                    gremlin.push(*term1)
-                }
-            }   
+                gremlin.push(*term1)
+            } else {
+                simplified_poly.push(*term1)
+            }  
         }
+        simplified_poly.dedup();
+        gremlin.dedup();
+
+        println!("simplified_poly: {:?}", simplified_poly);
         let mut counter = 0;
-        self.poly.clear();
+        println!("gremlin: {:?}", gremlin);
         gremlin.iter().for_each(|gremlin_term| {
+            println!("new round started");
             for (index2, self_term) in simplified_poly.iter().enumerate().rev() {
                 if *gremlin_term < *self_term {
+                    
                     self.poly.insert(index2 + 1 + counter, *gremlin_term);
                     counter += 1;
+                    
                     break;
                 }
             }
             });
-
-        Polynomial {poly: simplified_poly}
+        self
     }
 }
 
