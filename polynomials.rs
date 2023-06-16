@@ -31,43 +31,30 @@ impl Polynomial {
 
 impl std::ops::Sub for Polynomial {
     type Output = Polynomial;
-fn sub(mut self, subtrahend: Polynomial) -> Polynomial {
+fn sub(mut self, mut subtrahend: Polynomial) -> Polynomial {
 
-    let mut temp_self = self.poly.clone();
-        
-    let mut subtrahend_remains = vec![];
-        
-    let mut counter = 0;
-        
-        subtrahend.iter().enumerate().for_each(|(index1, sub_term)| {
-                temp_self.clear();
-                self.clone().iter().enumerate().for_each(|(index2, self_term)|{
-                        
-                if *sub_term != *self_term {
-                    temp_self.push(*self_term);
-                    counter += 1;
-                } else {
-                }
-                });
-                    if self.poly.len() == counter {
+    self.poly.append(&mut subtrahend.poly);
+    println!("{:?}", self);
 
-                        subtrahend_remains.push(*sub_term)
-                    }
-                    counter = 0;
-                    
-                    self = Polynomial {poly: temp_self.clone()};
-            });
-            
-            subtrahend_remains.iter().for_each(|remains_term| {
-            for (index2, self_term) in temp_self.iter().enumerate().rev() {
-                if *remains_term < *self_term {
-                    self.poly.insert(index2 + 1 + counter, *remains_term);
-                    counter += 1;
-                    break;
-                }
+    let mut new_self = vec![];
+
+    for term1 in self.iter() {
+        let mut count = 0;
+
+        for term2 in self.iter() {
+        
+            if *term1 == *term2 {
+                count += 1;
             }
-            });
-            self
+        }
+            if count % 2 != 0 {
+                new_self.push(*term1)  
+            }  
+    }
+    new_self.sort();
+    new_self = new_self.into_iter().rev().collect();
+    new_self.dedup();
+            Polynomial {poly: new_self}
         }
 }
 
@@ -75,7 +62,7 @@ impl std::ops::Mul for Polynomial {
     type Output = Polynomial;
     fn mul(mut self, poly2: Polynomial) -> Polynomial {
         
-        let mut poly = 
+        let poly = 
         self.iter().flat_map(|degree1| {
             poly2.iter().map(move|degree2| -> u8 {
                 
@@ -83,20 +70,10 @@ impl std::ops::Mul for Polynomial {
 
             })
         }).collect::<Vec<u8>>(); // from here on out I need to remove like terms if they appear more than twice. After that I also need to fix the order.
-    
-    let mut simplified_poly = vec![255];
+    //The block below does addition in the field gf(2) to simplify the polynomial product. 
 
-    let mut gremlin = vec![];
-
-    self.poly.clear();
-    
-    poly.sort();
-    poly = poly.into_iter().rev().collect();
     println!("poly: {:?}", poly);
-
-    let mut counter = 0;
-    let mut temp_term: u8 = 0;
-
+        self.poly.clear();
         for term1 in poly.iter() {
             let mut count = 0;
 
@@ -106,31 +83,14 @@ impl std::ops::Mul for Polynomial {
                     count += 1;
                 }
             }
-            
-            if count % 2 == 0 {
-                gremlin.push(*term1)
-            } else {
-                simplified_poly.push(*term1)
-            }  
+                if count % 2 != 0 {
+                    self.poly.push(*term1)  
+                }  
         }
-        simplified_poly.dedup();
-        gremlin.dedup();
-
-        println!("simplified_poly: {:?}", simplified_poly);
-        let mut counter = 0;
-        println!("gremlin: {:?}", gremlin);
-        gremlin.iter().for_each(|gremlin_term| {
-            println!("new round started");
-            for (index2, self_term) in simplified_poly.iter().enumerate().rev() {
-                if *gremlin_term < *self_term {
-                    
-                    self.poly.insert(index2 + 1 + counter, *gremlin_term);
-                    counter += 1;
-                    
-                    break;
-                }
-            }
-            });
+        self.poly.sort();
+        self.poly = self.poly.into_iter().rev().collect();
+        self.poly.dedup();
+        
         self
     }
 }
@@ -151,4 +111,3 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
         }).collect()
     }).collect()
 
-}
