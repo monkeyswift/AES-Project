@@ -169,13 +169,13 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
     let vec3 = state_1.next().unwrap();
     let vec4 = state_1.next().unwrap();
 
-    let mut columns: Vec<Vec<u8>> = vec1.into_iter()
+    let columns: Vec<Vec<u8>> = vec1.into_iter()
         .zip(vec2.into_iter().zip(vec3.into_iter().zip(vec4.into_iter())))
         .map(|(v1, (v2, (v3, v4)))| {
             return vec![v1, v2, v3, v4];
         }).collect();
 
-    let mut columns_as_polynomials: Vec<Vec<Polynomial>> = polynomial_conversion(columns);
+    let columns_as_polynomials: Vec<Vec<Polynomial>> = polynomial_conversion(columns);
 
     let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![
     vec![
@@ -199,20 +199,32 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
         Polynomial {poly: vec![0]},
         Polynomial {poly: vec![1, 0]}]];
 
-    let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]}; //might move this into the AES_modulo function.
+    let mut mixed_columns: Vec<Vec<Polynomial>> = vec![];
 
-    println!("{:?}",Polynomial {poly: vec![7,5,3,2]} - Polynomial {poly: vec![3,2,1,0]});
+    for column in columns_as_polynomials.iter() {
+        
+        let mut temp_vec = vec![];
+        for row in matrix_for_mixing.iter() {
+            let mut temp_pol = Polynomial {poly: vec![]};
+            for (row_poly, column_poly) in row.iter().zip(column.iter()) {
+                println!("inner loop entered \n");
+                    println!("polynomial being modified: {:?}, term from the matrix: {:?}", column_poly, row_poly);
+                    println!("post multiplication {:?}", (column_poly.clone() * row_poly.clone()));
+                    println!("post modulo product {:?}", (column_poly.clone() * row_poly.clone()).aes_modulo());
+                    println!("polynomial to be added/subtracted: {:?}", temp_pol);
+                    temp_pol = (column_poly.clone() * row_poly.clone()).aes_modulo() - temp_pol;
+                    println!("running sum of the polynomials is: {:?}\n", temp_pol);
+            }
+            temp_vec.push(temp_pol)
+        }
+        println!("new column: {:?}", temp_vec);
+        mixed_columns.push(temp_vec)
+    }
+    println!("columns before mixing: {:?}\n\nmixed columns: {:?}", columns_as_polynomials, mixed_columns);
+    println!("just checking that their lenghts are equal {:?} = {:?}", columns_as_polynomials.len(), mixed_columns.len());
 
-    //columns_as_polynomials.into_iter().map(|column1| {
-        //matrix_for_mixing.into_iter().map(|mx_row|
-            //mx_row.into_iter().zip(column1.into_iter()).map(|(a, b)| {
-                //let premod = a * b;
-                //let out = 
+    //println!("{:?}", mixed_columns);
 
-            //}
-        //)
-        //)
-    //});
     let temp_return: Vec<u8> = vec![0];
     temp_return
 }
