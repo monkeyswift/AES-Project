@@ -179,25 +179,25 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
 
     let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![
     vec![
+        Polynomial {poly: vec![1]},
         Polynomial {poly: vec![1, 0]},
-        Polynomial {poly: vec![2, 1, 0]},
         Polynomial {poly: vec![0]},
         Polynomial {poly: vec![0]}], 
     vec![
         Polynomial {poly: vec![0]},
-        Polynomial {poly: vec![1, 0]}, 
-        Polynomial {poly: vec![2, 1, 0]},
+        Polynomial {poly: vec![1]}, 
+        Polynomial {poly: vec![1, 0]},
         Polynomial {poly: vec![0]}],
     vec![
         Polynomial {poly: vec![0]},
         Polynomial {poly: vec![0]},
-        Polynomial {poly: vec![1, 0]},
-        Polynomial {poly: vec![2, 1, 0]}], 
+        Polynomial {poly: vec![1]},
+        Polynomial {poly: vec![1, 0]}], 
     vec![
-        Polynomial {poly: vec![2, 1, 0]},
+        Polynomial {poly: vec![1, 0]},
         Polynomial {poly: vec![0]},
         Polynomial {poly: vec![0]},
-        Polynomial {poly: vec![1, 0]}]];
+        Polynomial {poly: vec![1]}]];
 
     let mut mixed_columns: Vec<Vec<Polynomial>> = vec![];
 
