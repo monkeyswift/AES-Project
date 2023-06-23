@@ -14,13 +14,9 @@ impl Polynomial {
         let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]};
 
         while self.poly[0] >= 8 {
-            println!("round executed\n");
             let div_of_first_terms = self.poly[0] - irr_poly.poly[0]; // storing the quotient of dividing the first terms of both polynomials as res
-            println!("the quotient of dividing the first two terms is: {}", div_of_first_terms);
             let subtrahend: Polynomial = Polynomial {poly: irr_poly.iter().map(|term| div_of_first_terms + *term).collect()}; // creating the polynomial that needs to be subtracted from self.
-            println!("self before subtraction: {:?}, subtrahend before subtraction: {:?}", self, subtrahend);
             self = self - subtrahend;
-            println!("self after subtraction: {:?}", self);
         }
         self
     }
@@ -34,7 +30,6 @@ impl std::ops::Sub for Polynomial {
 fn sub(mut self, mut subtrahend: Polynomial) -> Polynomial {
 
     self.poly.append(&mut subtrahend.poly);
-    println!("{:?}", self);
 
     let mut new_self = vec![];
 
@@ -71,8 +66,6 @@ impl std::ops::Mul for Polynomial {
             })
         }).collect::<Vec<u8>>(); // from here on out I need to remove like terms if they appear more than twice. After that I also need to fix the order.
     //The block below does addition in the field gf(2) to simplify the polynomial product. 
-
-    println!("poly: {:?}", poly);
         self.poly.clear();
         for term1 in poly.iter() {
             let mut count = 0;
@@ -96,7 +89,7 @@ impl std::ops::Mul for Polynomial {
 }
 
 
-pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
+pub fn binary_to_polynomials(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
 
     columns.into_iter().map(|column| {
         column.into_iter().map(|byte| -> Polynomial {
@@ -111,3 +104,18 @@ pub fn polynomial_conversion(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
         }).collect()
     }).collect()
 
+}
+
+
+
+pub fn polynomials_to_binary(polynomials: Vec<Vec<Polynomial>>) -> Vec<Vec<u8>> {
+    polynomials.into_iter().map(|polynomial_vec| {
+        polynomial_vec.into_iter().map(|polynomial| {
+            let mut byte: u8 = 0;
+            for n in polynomial.poly {
+                byte |= 1 << n;
+            }
+            byte
+        }).collect()
+    }).collect()
+}
