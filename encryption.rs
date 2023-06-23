@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::io::{self, BufRead};
-use crate::polynomials::{polynomial_conversion, Polynomial};
+use crate::polynomials::{binary_to_polynomials, Polynomial, polynomials_to_binary};
 
 
 
@@ -30,15 +30,11 @@ pub fn accept_user_input() -> String {
 //then hand implement the Xor operator using expanded_limbo_cipher.chars.zip(key.chars()).for_each(for now just do .push_str() but toy with spewing out a complete grid.)
 // <- if that doesn't work use the arrange_into_grid function you made.
 
-pub fn apply_xor_operation(user_input: String) -> Vec<u8> {
-    let custom_key: u128 = 237282396920938463463374607431768715456;
+pub fn apply_xor_operation(user_input: Vec<u8>, key: [u8; 16]) -> Vec<u8> {
 
-    let user_string_bits = user_input.as_bytes(); //string as bytes
-    let custom_key_bits = custom_key.to_ne_bytes(); //integer as bytes
-
-    let state = user_string_bits
+    let state = user_input
         .iter()
-        .zip(custom_key_bits.iter())
+        .zip(key.iter())
         .map(|(user_string_bytes, custom_key_bytes)| user_string_bytes ^ custom_key_bytes)
         .collect::<Vec<_>>();
 
@@ -116,7 +112,6 @@ pub fn create_s_box_table() -> HashMap<u8, u8> {
         .for_each(|(a, b)| {
             s_box.insert(a, b);
         });
-
     s_box
 }
 
@@ -175,7 +170,7 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
             return vec![v1, v2, v3, v4];
         }).collect();
 
-    let columns_as_polynomials: Vec<Vec<Polynomial>> = polynomial_conversion(columns);
+    let columns_as_polynomials: Vec<Vec<Polynomial>> = binary_to_polynomials(columns);
 
     let matrix_for_mixing: Vec<Vec<Polynomial>> = vec![
     vec![
@@ -207,24 +202,27 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
         for row in matrix_for_mixing.iter() {
             let mut temp_pol = Polynomial {poly: vec![]};
             for (row_poly, column_poly) in row.iter().zip(column.iter()) {
-                println!("inner loop entered \n");
-                    println!("polynomial being modified: {:?}, term from the matrix: {:?}", column_poly, row_poly);
-                    println!("post multiplication {:?}", (column_poly.clone() * row_poly.clone()));
-                    println!("post modulo product {:?}", (column_poly.clone() * row_poly.clone()).aes_modulo());
-                    println!("polynomial to be added/subtracted: {:?}", temp_pol);
                     temp_pol = (column_poly.clone() * row_poly.clone()).aes_modulo() - temp_pol;
-                    println!("running sum of the polynomials is: {:?}\n", temp_pol);
             }
             temp_vec.push(temp_pol)
         }
-        println!("new column: {:?}", temp_vec);
         mixed_columns.push(temp_vec)
     }
-    println!("columns before mixing: {:?}\n\nmixed columns: {:?}", columns_as_polynomials, mixed_columns);
-    println!("just checking that their lenghts are equal {:?} = {:?}", columns_as_polynomials.len(), mixed_columns.len());
 
-    //println!("{:?}", mixed_columns);
+    let mut result = polynomials_to_binary(mixed_columns);
 
-    let temp_return: Vec<u8> = vec![0];
-    temp_return
+    let mut final_result = result.into_iter();
+
+    let column1 = final_result.next().unwrap();
+    let column2 = final_result.next().unwrap();
+    let column3 = final_result.next().unwrap();
+    let column4 = final_result.next().unwrap();
+
+    result = column1.into_iter()
+    .zip(column2.into_iter().zip(column3.into_iter().zip(column4.into_iter())))
+    .map(|(v1, (v2, (v3, v4)))| {
+        return vec![v1, v2, v3, v4];
+    }).collect();
+
+    result.into_iter().flat_map(|x|x).collect()
 }
