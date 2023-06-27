@@ -2,7 +2,7 @@
 pub struct Polynomial {
     pub poly: Vec<u8>
 }
-//remember that addition is just Xor cause of the finite field.
+
 impl Polynomial {
 
     fn iter(&self) -> std::slice::Iter<u8> {
@@ -22,8 +22,6 @@ impl Polynomial {
     }
 
 }
-// writing it out just helps me. So I currently have a problem where I need to include terms from the subtrahend if they aren't matched by anything.
-// if, after iterating througout all of self and comparing each element to the subtrahend term everything is included, the subtrahend term should be added.  
 
 impl std::ops::Sub for Polynomial {
     type Output = Polynomial;
@@ -88,7 +86,6 @@ impl std::ops::Mul for Polynomial {
     }
 }
 
-
 pub fn binary_to_polynomials(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
 
     columns.into_iter().map(|column| {
@@ -105,8 +102,6 @@ pub fn binary_to_polynomials(columns: Vec<Vec<u8>>) -> Vec<Vec<Polynomial>> {
     }).collect()
 
 }
-
-
 
 pub fn polynomials_to_binary(polynomials: Vec<Vec<Polynomial>>) -> Vec<Vec<u8>> {
     polynomials.into_iter().map(|polynomial_vec| {
