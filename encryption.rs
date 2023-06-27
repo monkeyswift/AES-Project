@@ -23,41 +23,14 @@ pub fn accept_user_input() -> String {
     _ext_input
 }
 
-//the key is 237282396920938463463374607431768715456.
-//let key: String = format!("{:0128b}", 237282396920938463463374607431768715456 as u128);
-//convert limbo into it's bit representation by iterating over every character, then formatting that character into it's bit representation ("{:08b}"). Use .for_each() to
-//push_str(the formatted character) into limbo_cipher.
-//then hand implement the Xor operator using expanded_limbo_cipher.chars.zip(key.chars()).for_each(for now just do .push_str() but toy with spewing out a complete grid.)
-// <- if that doesn't work use the arrange_into_grid function you made.
+pub fn xor_operation(input: Vec<u8>, key: Vec<u8>) -> Vec<u8> {
 
-pub fn apply_xor_operation(user_input: Vec<u8>, key: [u8; 16]) -> Vec<u8> {
-
-    let state = user_input
-        .iter()
-        .zip(key.iter())
-        .map(|(user_string_bytes, custom_key_bytes)| user_string_bytes ^ custom_key_bytes)
-        .collect::<Vec<_>>();
+    let state = input.iter().zip(key.iter()).map(|(input_unit, key_unit)| {
+        let result = *input_unit ^ *key_unit;
+        result
+    }).collect();
 
     state
-}
-
-pub fn arrange_into_grid(input: String) -> Vec<String> {
-    let mut grid: Vec<String> = Vec::new();
-
-    let mut iterator_of_xor_d_s = input.chars();
-
-    let mut inner_vector = Vec::new();
-
-    for n in 1..=128 {
-        inner_vector.push(iterator_of_xor_d_s.next().unwrap());
-
-        if n % 8 == 0 {
-            let stringified_vec = inner_vector.iter().collect::<String>().clone();
-            grid.push(stringified_vec);
-            inner_vector.clear();
-        }
-    }
-    grid
 }
 
 // gonna create the s-box hashmap right here, need to create it outside of the byte_sub function so that it only needs to be generated once
