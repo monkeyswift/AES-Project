@@ -12,45 +12,65 @@ pub mod round_key_generator;
 
 pub mod polynomials;
 
-//I will try to implement some type of AES encryption algorithm here
-// My key will be 128 bits and plaintext should be about 16 bytes.
-// the 16 bytes will be arranged into a 4x4 grid. The process below will occur 10 times in accordance with the AES standard.
-// Xor operation -> substitute bytes -> shift rows -> mix columns.
-// the grid looks like this:
-// [x_0, x_4, x_8,  x_12]
-// [x_1, x_5, x_9,  x_13]
-// [x_2, x_6, x_10, x_14]
-// [x_3, x_7, x_11, x_15]
-
-// This is how I shall model polynomials:
-// A struct will hold each unit of the polynomial
-//
-//I am going to iterate 
-
 fn main() {
 
     let key: u128 = 0b00101111001100100010010000001100010110000001101011010100001000000100110011110001111111001010010011110101001001000101011101110011;
 
-    let s_box = create_s_box_table(); //probably going to change this in the future. Created an exta hashmap to pass into the key generation for orginazation's sake.
+    let s_box = create_s_box_table();
 
-    let round_keys = generate_round_keys(key, s_box);
+    let mut round_keys: Vec<Vec<u8>> = generate_round_keys(key, s_box);
 
-    let mut user_input = String::from("unfathomable huh").into_bytes();
+    let user_input = String::from("unfathomable huh").into_bytes();
 
-    println!("{:?}", user_input);
+    println!("og input: {:?}", user_input);
 
-    let mut state = xor_operation(user_input, key.to_ne_bytes().to_vec());
-
+    let mut state = xor_operation(user_input, round_keys[0].clone());
+    println!("{:?}", round_keys[0]);
     let s_box1 = create_s_box_table();
+    
+    for n in 1..10 {
+
     state = state.iter().map(|value| *s_box1.get(value).unwrap()).collect();
+   
     state = row_shifting(state);
+
     state = column_mixing(state);
+
+    state = xor_operation(state, round_keys[n].clone());
+
+}
     println!("{:?}", state);
-    state = reverse_column_mixing(state);
+    state = state.iter().map(|value| *s_box1.get(value).unwrap()).collect();
+
+    state = row_shifting(state);
+
+    state = xor_operation(state, round_keys[10].clone());
+
+    //decryption starts here.
+    round_keys = round_keys.into_iter().rev().collect();
+
+    state = xor_operation(state, round_keys[0].clone());
+
     state = reverse_row_shifting(state);
-    let s_box2 = create_reverse_s_box_table();
-    state = state.iter().map(|value| *s_box2.get(value).unwrap()).collect();
-    state = xor_operation(state, key.to_ne_bytes().to_vec());
+
+    let reverse_s_box = create_reverse_s_box_table();
+    state = state.iter().map(|value| *reverse_s_box.get(value).unwrap()).collect();
     println!("{:?}", state);
+
+    for n in 1..10 {
+
+        state = xor_operation(state, round_keys[n].clone());
+
+        state = reverse_column_mixing(state);
+
+        state = reverse_row_shifting(state);
+
+        state = state.iter().map(|value| *reverse_s_box.get(value).unwrap()).collect();
+    
+    }
+
+    let decrypted = xor_operation(state, round_keys[10].clone());
+
+    println!("{:?}", decrypted);
 
 }
