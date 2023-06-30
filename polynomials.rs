@@ -8,9 +8,11 @@ impl Polynomial {
     fn iter(&self) -> std::slice::Iter<u8> {
         self.poly.iter()
     }
-
+//make sure to add handling for cases where the Polynomial is vec![];
     pub fn aes_modulo(mut self) -> Polynomial {
-
+        if self.poly == vec![] {
+            return Polynomial { poly: vec![] }
+        }
         let irr_poly = Polynomial {poly: vec![8, 4, 3, 1, 0]};
 
         while self.poly[0] >= 8 {
