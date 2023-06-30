@@ -16,13 +16,13 @@ pub fn round_constants(mut last_constant: Vec<u8>) -> Vec<u8> {
     last_constant
 }
 
-pub fn generate_round_keys(key: u128, s_box: HashMap<u8, u8>) -> Vec<Vec<Vec<u8>>> {
+pub fn generate_round_keys(key: u128, s_box: HashMap<u8, u8>) -> Vec<Vec<u8>> {
 
     let mut key_vector: Vec<Vec<u8>> = key.to_ne_bytes().chunks(4).map(|x|x.to_vec()).collect();
 
-    let mut vector_for_key_addition_layers: Vec<Vec<Vec<u8>>> = vec![];
+    let mut vector_for_key_addition_layers: Vec<Vec<u8>> = vec![];
 
-    for _ in 0..9 {
+    for _ in 0..11 {
 
         let mut key_vector_iter = key_vector.clone().into_iter();
 
@@ -37,7 +37,7 @@ pub fn generate_round_keys(key: u128, s_box: HashMap<u8, u8>) -> Vec<Vec<Vec<u8>
         
         travler = round_constants(travler);
 
-        let modded_key_vec1: Vec<u8> = key_vec1.iter().zip(travler.iter()).map(|(unit1, unit2)| {
+        let mut modded_key_vec1: Vec<u8> = key_vec1.iter().zip(travler.iter()).map(|(unit1, unit2)| {
             let result = *unit1 ^ *unit2;
             result
         }).collect();
@@ -57,9 +57,15 @@ pub fn generate_round_keys(key: u128, s_box: HashMap<u8, u8>) -> Vec<Vec<Vec<u8>
             result
         }).collect();
 
-        let temp_vec = vec![modded_key_vec1, modded_key_vec2, modded_key_vec3, modded_key_vec4];
+        let temp_vec = vec![modded_key_vec1.clone(), modded_key_vec2.clone(), modded_key_vec3.clone(), modded_key_vec4.clone()];
 
-        vector_for_key_addition_layers.push(temp_vec.clone());
+        modded_key_vec1.extend(modded_key_vec2);
+
+        modded_key_vec1.extend(modded_key_vec3);
+
+        modded_key_vec1.extend(modded_key_vec4);
+
+        vector_for_key_addition_layers.push(modded_key_vec1);
 
         key_vector = temp_vec;
 
