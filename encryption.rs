@@ -170,12 +170,12 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
     let mut mixed_columns: Vec<Vec<Polynomial>> = vec![];
 
     for column in columns_as_polynomials.iter() {
-        
         let mut temp_vec = vec![];
+
         for row in matrix_for_mixing.iter() {
             let mut temp_pol = Polynomial {poly: vec![]};
             for (row_poly, column_poly) in row.iter().zip(column.iter()) {
-                    temp_pol = (column_poly.clone() * row_poly.clone()).aes_modulo() - temp_pol;
+                temp_pol = (column_poly.clone() * row_poly.clone()).aes_modulo() - temp_pol;
             }
             temp_vec.push(temp_pol)
         }
@@ -198,4 +198,5 @@ pub fn column_mixing(state: Vec<u8>) -> Vec<u8> {
     }).collect();
 
     result.into_iter().flat_map(|x|x).collect()
+
 }
