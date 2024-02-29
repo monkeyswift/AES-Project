@@ -1,4 +1,2 @@
 # AES-Project
-Trying to implement AES encryption in rust.
-All of the code here is very broken right now and a work in progress. Some of the notes also make no sense but I promise they did before they *went out of scope*.
-I think it's worth mentioning that I am doing my best to avoid importing any crates for this project because my main objective is learning rust and cryptography; importing anything reduces my workload which obviously contradicts my goal.
+This is a small implementation of AES programmed in Rust. There isn't a developed UI or anything as the purpose of this project was to improve my proficiency in Rust, Programming in general, and Cryptography. Imported a minimal amount of crates as that would have reduced my workload which goes against the purpose of this project.
